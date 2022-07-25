@@ -6,11 +6,12 @@ import geoService from '../api/geoService';
 const StateContext = createContext();
 
 export const ContextProvider = ({ children }) => {
-  const [inputValue, setInputValue] = useState('BR');
+  const [inputValue, setInputValue] = useState();
 
   const [initialLat, setInitialLat] = useState(-23.000372);
   const [initialLong, setInitialLong] = useState(-43.365894);
   const [countryData, setCountryData] = useState([]);
+  const [selectValues, setSelectValues] = useState([]);
 
   const [countryNetworks, setCountryNetworks] = useState([]);
   const [countryStations, setCountryStations] = useState([]);
@@ -19,6 +20,22 @@ export const ContextProvider = ({ children }) => {
   const [networksCountryLength, setNetworksCountryLength] = useState(0);
 
   const [done, setDone] = useState(false);
+
+  const getSelectValues = async () => {
+    const {
+      data: { networks },
+    } = await geoService.getNetworks();
+
+    let allCountries = [];
+    networks.forEach((network) => allCountries.push(network.location.country));
+
+    const countriesFilter = new Set(allCountries);
+    const contriesArray = [...countriesFilter];
+    contriesArray.sort();
+    setSelectValues(contriesArray.sort());
+    setInputValue('BR');
+    // pega todos os paises e coloca dentro de um array para ser usado no select
+  };
 
   const getNetworksCountry = async () => {
     setDone(false);
@@ -147,6 +164,11 @@ export const ContextProvider = ({ children }) => {
   }, [done]);
   // quando acabar, conta o total de objetos no array para imprimir na tela
 
+  useEffect(() => {
+    getSelectValues();
+  }, []);
+  // ao montar o app ele pega os valores do select
+
   return (
     <StateContext.Provider
       value={{
@@ -157,6 +179,7 @@ export const ContextProvider = ({ children }) => {
         allStations,
         networksCountryLength,
         allNetworks,
+        selectValues,
         done,
       }}
     >
