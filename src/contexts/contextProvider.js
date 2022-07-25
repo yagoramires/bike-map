@@ -17,12 +17,12 @@ export const ContextProvider = ({ children }) => {
       data: { networks },
     } = await geoService.getNetworks();
 
-    const getCountry = networks.filter((network) =>
-      console.log(network.location.country),
-    );
+    // const getCountry = networks.filter((network) =>
+    //   console.log(network.location.country),
+    // );
 
     const getLocation = networks.filter(
-      (network) => network.location.country === inputValue,
+      (network) => network.location.city === inputValue,
     );
 
     setInitialLat(getLocation[0].location.latitude);
