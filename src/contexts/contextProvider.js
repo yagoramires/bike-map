@@ -124,7 +124,13 @@ export const ContextProvider = ({ children }) => {
       return {
         'type': 'Feature',
         'properties': {
-          'description': `<p>${stationData.name}</p> <p>Empty Slots: ${stationData.empty_slots}</p> <p>Free Bikes: ${stationData.free_bikes}</p>`,
+          'description': `<p>${
+            stationData.name ? stationData.name : ''
+          }</p> <p>Empty Slots: ${
+            stationData.empty_slots ? stationData.empty_slots : ''
+          }</p> <p>Free Bikes: ${
+            stationData.free_bikes ? stationData.free_bikes : ''
+          }</p>`,
           'icon': 'bicycle',
         },
         'geometry': {
@@ -140,7 +146,7 @@ export const ContextProvider = ({ children }) => {
 
     setTimeout(() => {
       setDone(true);
-    }, 1500);
+    }, 1000);
     //atualiza os valores no mapa
   };
 
