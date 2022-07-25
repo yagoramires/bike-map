@@ -6,8 +6,10 @@ import './map.css';
 import { useStateContext } from '../../contexts/contextProvider';
 
 export default function Map() {
-  const { initialLat, initialLong, allStations } = useStateContext();
-
+  // VARIÁVEIS DO CONTEXT
+  const { inputValue, initialLat, initialLong, allStations, done } = useStateContext();
+    
+  //MAPA
   const mapContainer = useRef(null);
   const map = useRef(null);
   const long = initialLong;
@@ -15,37 +17,6 @@ export default function Map() {
 
   const [zoom] = useState(4);
   const [API_KEY] = useState('qNzilfZdZqz1XdoT2fWM');
-
-  // useEffect(() => {
-  //   // if (map.current) return; //stops map from intializing more than once
-  //   map.current = new maplibregl.Map({
-  //     container: mapContainer.current,
-  //     style: `https://api.maptiler.com/maps/streets/style.json?key=${API_KEY}`,
-  //     center: [long, lat],
-  //     zoom: zoom,
-  //   });
-
-  //   map.current.on('load', function () {
-  //     map.current.addSource('id', {
-  //       type: 'geojson',
-  //       data: {
-  //         type: 'FeatureCollection',
-  //         features: allStations,
-  //       },
-  //     });
-
-  //     map.current.addLayer({
-  //       id: 'bikePoints',
-  //       type: 'circle',
-  //       source: 'id',
-  //       paint: {
-  //         'circle-radius': 6,
-  //         'circle-color': '#d10202',
-  //       },
-  //       filter: ['==', '$type', 'Point'],
-  //     });
-  //   });
-  // }, [allStations]);
 
   useEffect(() => {
     map.current = new maplibregl.Map({
@@ -57,34 +28,20 @@ export default function Map() {
     map.current.addControl(new maplibregl.NavigationControl(), 'top-left');
 
     map.current.on('load', function () {
-      map.current.addSource('places', {
+      map.current.addSource(done? inputValue : 'places', {
         'type': 'geojson',
         'data': {
           'type': 'FeatureCollection',
-          // 'features': [
-          //   {
-          //     'type': 'Feature',
-          //     'properties': {
-          //       'description':
-          //         'texto',
-          //       'icon': 'bicycle',
-          //     },
-          //     'geometry': {
-          //       'type': 'Point',
-          //       'coordinates': [long, lat],
-          //     },
-          //   },
-            
-          // ],
+
           'features' : allStations
         },
       });
-      // Add a layer showing the places.
 
+      // Add a layer showing the places.
       map.current.addLayer({
-        'id': 'places',
+        'id': done? inputValue : 'places',
         'type': 'symbol',
-        'source': 'places',
+        'source': done? inputValue : 'places',
         'layout': {
           'icon-image': '{icon}_15',
           'icon-overlap': 'always',
@@ -93,7 +50,7 @@ export default function Map() {
 
       // When a click event occurs on a feature in the places layer, open a popup at the
       // location of the feature, with description HTML from its properties.
-      map.current.on('click', 'places', function (e) {
+      map.current.on('click', done? inputValue : 'places', function (e) {
         let coordinates = e.features[0].geometry.coordinates.slice();
         let description = e.features[0].properties.description;
 
@@ -111,16 +68,16 @@ export default function Map() {
       });
 
       // Change the cursor to a pointer when the mouse is over the places layer.
-      map.current.on('mouseenter', 'places', function () {
+      map.current.on('mouseenter', done? inputValue : 'places', function () {
         map.current.getCanvas().style.cursor = 'pointer';
       });
 
       // Change it back to a pointer when it leaves.
-      map.current.on('mouseleave', 'places', function () {
+      map.current.on('mouseleave', done? inputValue : 'places', function () {
         map.current.getCanvas().style.cursor = '';
       });
     });
-  }, [allStations]);
+  }, [done]); //ATUALIZA QUANDO ALTERA AS STATIONS
 
   return (
     <div className='map-wrap'>

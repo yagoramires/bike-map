@@ -9,6 +9,7 @@ const Infos = () => {
   const { inputValue, networksCountryLength, allNetworks } = useStateContext();
 
   const [handleNetworks, setHandleNetworks] = useState(false)
+  //quando clicar mostra/minimiza os networks na tela
 
   return (
     <div className='infos'>
@@ -20,9 +21,9 @@ const Infos = () => {
       </div>
       <div className='stations'>
       {handleNetworks
-        ? allNetworks.map((station) => {
+        ? allNetworks.map((station, i) => {
             return (
-                <span>{`${station.id}: ${station.stationsLen}`}</span>
+                <span key={i}>{`${station.id}: ${station.stationsLen}`}</span>
                 );
               })
               : null}

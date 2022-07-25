@@ -8,3 +8,4 @@ export default class geoService {
     return axios(`http://api.citybik.es${href}`);
   }
 }
+// importa os dados da api
