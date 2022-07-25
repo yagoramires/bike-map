@@ -66,11 +66,23 @@ export const ContextProvider = ({ children }) => {
     setCountryNetworks(countryNetworks);
 
     const locationStations = network.stations.map((location) => {
+      // return {
+      //   type: 'Feature',
+      //   geometry: {
+      //     type: 'Point',
+      //     coordinates: [location.longitude, location.latitude],
+      //   },
+      // };
+
       return {
-        type: 'Feature',
-        geometry: {
-          type: 'Point',
-          coordinates: [location.longitude, location.latitude],
+        'type': 'Feature',
+        'properties': {
+          'description': 'texto',
+          'icon': 'bicycle',
+        },
+        'geometry': {
+          'type': 'Point',
+          'coordinates': [location.longitude, location.latitude],
         },
       };
     });
