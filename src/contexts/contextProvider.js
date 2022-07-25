@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { createContext, useContext, useEffect, useState } from 'react';
 
 import geoService from '../api/geoService';
@@ -10,16 +11,51 @@ export const ContextProvider = ({ children }) => {
   const [initialLong, setInitialLong] = useState(-43.23066241220844);
 
   const [stations, setStations] = useState();
-  const [locations, setLocations] = useState();
+  const [locations, setLocations] = useState([]);
+  const [countryLocations, setCountryLocations] = useState([]);
 
-  const getNetworks = async () => {
+  const getNetworksCountry = async () => {
+    setLocations([]);
     const {
       data: { networks },
     } = await geoService.getNetworks();
 
-    // const getCountry = networks.filter((network) =>
-    //   console.log(network.location.country),
-    // );
+    const getCountry = networks.filter(
+      (network) => network.location.country === inputValue,
+    );
+
+    setInitialLat(getCountry[0].location.latitude);
+    setInitialLong(getCountry[0].location.longitude);
+
+    const hrefs = getCountry.map((network) => network.href);
+
+    hrefs.forEach((href) => {
+      getStationsCountry(href);
+    });
+  };
+
+  const getStationsCountry = async (href) => {
+    const {
+      data: { network },
+    } = await geoService.getStations(href);
+
+    const locationStations = network.stations.map((location) => {
+      return {
+        type: 'Feature',
+        geometry: {
+          type: 'Point',
+          coordinates: [location.longitude, location.latitude],
+        },
+      };
+    });
+
+    setCountryLocations(locationStations);
+  };
+
+  const getNetworksCity = async () => {
+    const {
+      data: { networks },
+    } = await geoService.getNetworks();
 
     const getLocation = networks.filter(
       (network) => network.location.city === inputValue,
@@ -33,7 +69,7 @@ export const ContextProvider = ({ children }) => {
     setStations(hrefs);
   };
 
-  const getStations = async () => {
+  const getStationsCity = async () => {
     const {
       data: { network },
     } = await geoService.getStations(stations);
@@ -53,23 +89,25 @@ export const ContextProvider = ({ children }) => {
 
   useEffect(() => {
     if (inputValue) {
-      console.log(inputValue);
-      getNetworks();
+      getNetworksCity();
+      getNetworksCountry();
     }
   }, [inputValue]);
 
   useEffect(() => {
     if (stations) {
       // console.log(stations);
-      getStations();
+      getStationsCity();
+      getStationsCountry();
     }
   }, [stations]);
 
   useEffect(() => {
-    if (locations) {
-      // console.log(locations);
-    }
-  }, [locations]);
+    const allLocations = locations.concat(countryLocations);
+
+    setLocations(allLocations);
+    console.log(allLocations);
+  }, [countryLocations]);
 
   return (
     <StateContext.Provider
