@@ -18,15 +18,15 @@ const Infos = () => {
         {handleNetworks? <IoIosArrowUp /> :
         <IoIosArrowDown />}
       </div>
+      <div className='stations'>
       {handleNetworks
         ? allNetworks.map((station) => {
             return (
-              <div className='stations'>
                 <span>{`${station.id}: ${station.stationsLen}`}</span>
-              </div>
-            );
-          })
-        : null}
+                );
+              })
+              : null}
+        </div>
     </div>
   );
 };
