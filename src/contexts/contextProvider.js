@@ -65,7 +65,6 @@ export const ContextProvider = ({ children }) => {
     setInitialLong(getLocation[0].location.longitude);
 
     const hrefs = getLocation.map((network) => network.href);
-
     setStations(hrefs);
   };
 
@@ -106,7 +105,7 @@ export const ContextProvider = ({ children }) => {
     const allLocations = locations.concat(countryLocations);
 
     setLocations(allLocations);
-    console.log(allLocations);
+    // console.log(allLocations);
   }, [countryLocations]);
 
   return (
