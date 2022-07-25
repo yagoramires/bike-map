@@ -5,6 +5,13 @@
     padding: 1rem 2rem;
 }
 
+.header__title {
+    text-decoration: none;
+    font-size:2rem;
+    color: #000;
+    font-weight:800
+}
+
 .header__input {
     padding: .5rem 2rem;
     border-radius: .5rem;

@@ -1,0 +1,29 @@
+.infos {
+  position: absolute;
+  top: 6rem;
+  right: 2rem;
+  z-index: 10;
+
+  background-color: rgba(255,255,255,0.9);
+  border-radius:.5rem;
+  padding:.5rem;
+}
+
+.infos span {
+  display: flex;
+  flex-direction: column;
+
+}
+
+.networks {
+  display: flex;
+  align-items:center;
+  justify-content: space-between;
+  cursor: pointer;
+  gap: .5rem;
+}
+
+.stations {
+  display: flex;
+  align-items:center;
+}

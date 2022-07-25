@@ -6,72 +6,64 @@ import geoService from '../api/geoService';
 const StateContext = createContext();
 
 export const ContextProvider = ({ children }) => {
-  const [inputValue, setInputValue] = useState();
+  const [inputValue, setInputValue] = useState('BR');
+
   const [initialLat, setInitialLat] = useState(-22.91226530375198);
   const [initialLong, setInitialLong] = useState(-43.23066241220844);
+  const [countryData, setCountryData] = useState([]);
 
-  const [stations, setStations] = useState();
-  const [locations, setLocations] = useState([]);
-  const [countryLocations, setCountryLocations] = useState([]);
+  const [countryNetworks, setCountryNetworks] = useState([]);
+  const [countryStations, setCountryStations] = useState([]);
+  const [allNetworks, setAllNetworks] = useState([]);
+  const [allStations, setAllstations] = useState([]);
+  const [networksCountryLength, setNetworksCountryLength] = useState(0);
 
   const getNetworksCountry = async () => {
-    setLocations([]);
+    setAllNetworks([]);
+    setAllstations([]);
     const {
       data: { networks },
     } = await geoService.getNetworks();
 
     const getCountry = networks.filter(
-      (network) => network.location.country === inputValue,
+      (network) => network.location.country === inputValue
     );
 
     setInitialLat(getCountry[0].location.latitude);
     setInitialLong(getCountry[0].location.longitude);
 
-    const hrefs = getCountry.map((network) => network.href);
+    setCountryData(getCountry);
+  };
+
+  useEffect(() => {
+    if (inputValue) {
+      getNetworksCountry();
+    }
+  }, [inputValue]);
+
+  const handleCountryData = (data) => {
+    const hrefs = data.map((network) => network.href);
+    setNetworksCountryLength(hrefs.length);
 
     hrefs.forEach((href) => {
       getStationsCountry(href);
     });
   };
 
+  useEffect(() => {
+    handleCountryData(countryData);
+  }, [countryData]);
+
   const getStationsCountry = async (href) => {
     const {
       data: { network },
     } = await geoService.getStations(href);
 
-    const locationStations = network.stations.map((location) => {
-      return {
-        type: 'Feature',
-        geometry: {
-          type: 'Point',
-          coordinates: [location.longitude, location.latitude],
-        },
-      };
-    });
-
-    setCountryLocations(locationStations);
-  };
-
-  const getNetworksCity = async () => {
-    const {
-      data: { networks },
-    } = await geoService.getNetworks();
-
-    const getLocation = networks.filter(
-      (network) => network.location.city === inputValue,
-    );
-
-    setInitialLat(getLocation[0].location.latitude);
-    setInitialLong(getLocation[0].location.longitude);
-
-    const hrefs = getLocation.map((network) => network.href);
-    setStations(hrefs);
-  };
-
-  const getStationsCity = async () => {
-    const {
-      data: { network },
-    } = await geoService.getStations(stations);
+    const countryNetworks = {
+      id: network.id,
+      stationsLen: network.stations.length,
+    };
+    setCountryNetworks(countryNetworks);
 
     const locationStations = network.stations.map((location) => {
       return {
@@ -83,30 +75,16 @@ export const ContextProvider = ({ children }) => {
       };
     });
 
-    setLocations(locationStations);
+    setCountryStations(locationStations);
   };
 
   useEffect(() => {
-    if (inputValue) {
-      getNetworksCity();
-      getNetworksCountry();
-    }
-  }, [inputValue]);
+    const allStationsArray = allStations.concat(countryStations);
+    const allNetworksArray = allNetworks.concat(countryNetworks);
 
-  useEffect(() => {
-    if (stations) {
-      // console.log(stations);
-      getStationsCity();
-      getStationsCountry();
-    }
-  }, [stations]);
-
-  useEffect(() => {
-    const allLocations = locations.concat(countryLocations);
-
-    setLocations(allLocations);
-    // console.log(allLocations);
-  }, [countryLocations]);
+    setAllNetworks(allNetworksArray);
+    setAllstations(allStationsArray);
+  }, [countryStations]);
 
   return (
     <StateContext.Provider
@@ -115,7 +93,9 @@ export const ContextProvider = ({ children }) => {
         setInputValue,
         initialLat,
         initialLong,
-        locations,
+        allStations,
+        networksCountryLength,
+        allNetworks,
       }}
     >
       {children}

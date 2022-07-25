@@ -6,14 +6,9 @@ import './header.css';
 const Header = () => {
   const { setInputValue } = useStateContext();
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setInputValue(e.target[0].value);
-  };
-
   return (
     <header className='header'>
-      <h1 className='header__title'>City Bike</h1>
+      <a href='/' className='header__title'>City Bike</a>
       <select
         onClick={(e) => {
           setInputValue(e.target.value);
@@ -25,13 +20,7 @@ const Header = () => {
         <option value='US'>United States</option>
         <option value='RU'>Russia</option>
       </select>
-      <form onSubmit={handleSubmit}>
-        <input
-          type='text'
-          className='header__input'
-          placeholder='Search City'
-        />
-      </form>
+
     </header>
   );
 };
