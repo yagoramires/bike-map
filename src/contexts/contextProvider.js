@@ -8,8 +8,8 @@ const StateContext = createContext();
 export const ContextProvider = ({ children }) => {
   const [inputValue, setInputValue] = useState('BR');
 
-  const [initialLat, setInitialLat] = useState(-22.91226530375198);
-  const [initialLong, setInitialLong] = useState(-43.23066241220844);
+  const [initialLat, setInitialLat] = useState(0);
+  const [initialLong, setInitialLong] = useState(0);
   const [countryData, setCountryData] = useState([]);
 
   const [countryNetworks, setCountryNetworks] = useState([]);
