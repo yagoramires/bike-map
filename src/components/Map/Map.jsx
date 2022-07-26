@@ -7,7 +7,7 @@ import { useStateContext } from '../../contexts/contextProvider';
 
 export default function Map() {
   // VARIÁVEIS DO CONTEXT
-  const { inputValue, initialLat, initialLong, allStations, done } = useStateContext();
+  const { inputValue, initialLat, initialLong, bikePoint, done } = useStateContext();
     
   //MAPA
   const mapContainer = useRef(null);
@@ -33,15 +33,15 @@ export default function Map() {
         'data': {
           'type': 'FeatureCollection',
 
-          'features' : allStations
+          'features' : bikePoint
         },
       });
 
       // Add a layer showing the places.
       map.current.addLayer({
-        'id': done? inputValue : 'places',
+        'id':'places',
         'type': 'symbol',
-        'source': done? inputValue : 'places',
+        'source':'places',
         'layout': {
           'icon-image': '{icon}_15',
           'icon-overlap': 'always',
@@ -50,7 +50,7 @@ export default function Map() {
 
       // When a click event occurs on a feature in the places layer, open a popup at the
       // location of the feature, with description HTML from its properties.
-      map.current.on('click', done? inputValue : 'places', function (e) {
+      map.current.on('click','places', function (e) {
         let coordinates = e.features[0].geometry.coordinates.slice();
         let description = e.features[0].properties.description;
 
@@ -68,12 +68,12 @@ export default function Map() {
       });
 
       // Change the cursor to a pointer when the mouse is over the places layer.
-      map.current.on('mouseenter', done? inputValue : 'places', function () {
+      map.current.on('mouseenter','places', function () {
         map.current.getCanvas().style.cursor = 'pointer';
       });
 
       // Change it back to a pointer when it leaves.
-      map.current.on('mouseleave', done? inputValue : 'places', function () {
+      map.current.on('mouseleave','places', function () {
         map.current.getCanvas().style.cursor = '';
       });
     });
