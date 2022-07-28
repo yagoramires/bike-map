@@ -6,186 +6,184 @@ import geoService from '../api/geoService';
 const StateContext = createContext();
 
 export const ContextProvider = ({ children }) => {
-  const [inputValue, setInputValue] = useState();
+  const [apiNetworks, setApiNetworks] = useState([]);
+  // Todos os networks recebidos da API
+  const [selectValues, setSelectValues] = useState([]);
+  // Valor filtrado da API para o select
+  const [selectValue, setSelectValue] = useState();
+  // Valor inserido pelo usuário
 
   const [initialLat, setInitialLat] = useState(-23.000372);
   const [initialLong, setInitialLong] = useState(-43.365894);
-  const [countryData, setCountryData] = useState([]);
-  const [selectValues, setSelectValues] = useState([]);
-
-  const [countryNetworks, setCountryNetworks] = useState([]);
-  const [countryStations, setCountryStations] = useState([]);
-  const [allNetworks, setAllNetworks] = useState([]);
-  const [allStations, setAllstations] = useState([]);
   const [networksCountryLength, setNetworksCountryLength] = useState(0);
-
+  const [apiHref, setApiHref] = useState([]);
+  const [networksByCountry, setNetworksByCountry] = useState([]);
+  const [info, setInfo] = useState([]);
+  const [infoLength, setInfoLength] = useState(0);
+  const [bikePoint, setBikePoint] = useState([]);
   const [done, setDone] = useState(false);
 
-  const getSelectValues = async () => {
+  const fetchApi = async () => {
     const {
       data: { networks },
     } = await geoService.getNetworks();
+    setApiNetworks(networks);
+  }; //salva os dados da API dentro da variável apiNetworks
+  useEffect(() => {
+    fetchApi();
+  }, []); //chama a função somente ao iniciar
+
+  const getSelectValues = (networks) => {
+    if (!networks) return;
 
     let allCountries = [];
     networks.forEach((network) => allCountries.push(network.location.country));
+    //pega os países de cada network e retorna um array com todos os países(incluindo valores repetidos)
 
     const countriesFilter = new Set(allCountries);
+    //filtra os países para não haver repetições e retorna um objeto com todoso os páises (sem repetições)
     const contriesArray = [...countriesFilter];
+    //transforma em array
     contriesArray.sort();
+    //organiza por ordem alfabética
     setSelectValues(contriesArray.sort());
-    setInputValue('BR');
     // pega todos os paises e coloca dentro de um array para ser usado no select
   };
 
-  const getNetworksCountry = async () => {
-    setDone(false);
-    setCountryData([]);
-    setCountryNetworks([]);
-    setCountryStations([]);
-    setAllNetworks([]);
-    setAllstations([]);
-    setNetworksCountryLength(0);
+  useEffect(() => {
+    if (!apiNetworks) return;
+    if (apiNetworks.length > 0) {
+      getSelectValues(apiNetworks);
+    }
+  }, [apiNetworks]);
+  // ao consumir a api, ele pega os valores para inserir no select
 
+  const getNetworksByCountry = (networks) => {
+    if (!networks) return;
+    setNetworksByCountry([]);
+    setInfo([]);
+    setNetworksCountryLength(0);
     //reseta todas as variáveis
 
-    const {
-      data: { networks },
-    } = await geoService.getNetworks();
-
-    //console.log(networks); //retorna todos os networks
-
     const getCountry = networks.filter(
-      (network) => network.location.country === inputValue
-    );
-
-    //console.log(getCountry); //filtra por país baseado no input
+      (network) => network.location.country === selectValue,
+    ); //filtra por país baseado no input
 
     setInitialLat(getCountry[0].location.latitude);
     setInitialLong(getCountry[0].location.longitude);
-
     // define a lat e long iniciais
 
-    setCountryData(getCountry);
-
+    setNetworksByCountry(getCountry);
     // chama a função que pega os dados por objeto
   };
 
   useEffect(() => {
-    if (inputValue) {
-      getNetworksCountry();
+    if (selectValue) {
+      getNetworksByCountry(apiNetworks);
     }
-  }, [inputValue]);
-
-  // chama a função ao alterar o inputValue (PAÍS)
-
-  const handleCountryData = (data) => {
-    const hrefs = data.map((network) => network.href);
-
-    //pega todos os hrefs
-
-    hrefs.forEach((href) => {
-      getStationsCountry(href);
-    });
-
-    // passa por todos hrefs e chama a funcao
-  };
+  }, [selectValue]); // quando selecionar o país, irá chamar a função getNetworksByCountry
 
   useEffect(() => {
-    handleCountryData(countryData);
-  }, [countryData]);
+    handleNeworksByCountry(networksByCountry);
+  }, [networksByCountry]);
+  // chama a função ao alterar o networksByCountry (ao concluir a função getNetworksByCountry)
 
-  // chama a função ao alterar o countryData (alterado pela primeira função)
+  const handleNeworksByCountry = async (data) => {
+    if (!data) return;
+    setApiHref([]); //quando chamar um novo país irá resetar o state ApiHrefs
 
-  const getStationsCountry = async (href) => {
+    const hrefs = data.map((network) => network.href); //pega os hrefs de cada network
+
+    let promises = [];
+    hrefs.forEach((href) => promises.push(handleHrefs(href))); // para cada href irá retornar um promise
+    const networksArray = await Promise.all(promises); // resolve todos os promises e coloca os objetos dentro de um array
+    setApiHref(networksArray); //passa todos os objetos para uma variável
+  };
+
+  const handleHrefs = async (href) => {
     const {
       data: { network },
     } = await geoService.getStations(href);
-
-    //console.log(network); //entra em cada href e retorna um objeto com as stations e locations
-
-    // if (network.stations.length !== 0) {
-    //   setNetworksCountryLength(networksCountryLength + 1);
-    // }
-
-    if (
-      network.stations.length !== 0 &&
-      network.stations.length !== undefined
-    ) {
-      const countryNetworks = {
-        id: network.id,
-        stationsLen: network.stations.length,
-      };
-      setCountryNetworks(countryNetworks);
-      // console.log(countryNetworks);
-    }
-    // se o objeto tiver pelo menos 1 station, chama atualiza o countryNetworks (passado no componente info, trazendo o nome e o tamanho de )
-
-    const locationStations = network.stations.map((stationData) => {
-      return {
-        'type': 'Feature',
-        'properties': {
-          'description': `<p>${
-            stationData.name ? stationData.name : ''
-          }</p> <p>Empty Slots: ${
-            stationData.empty_slots ? stationData.empty_slots : ''
-          }</p> <p>Free Bikes: ${
-            stationData.free_bikes ? stationData.free_bikes : ''
-          }</p>`,
-          'icon': 'bicycle',
-        },
-        'geometry': {
-          'type': 'Point',
-          'coordinates': [stationData.longitude, stationData.latitude],
-        },
-      };
-    });
-    //retorna um array com objetos contendo as informações de cada estação, um objeto no formato utilizado para ser exibido no mapa
-
-    setCountryStations(locationStations);
-    //atualiza o country stations com os dados
-
-    setTimeout(() => {
-      setDone(true);
-    }, 1000);
-    //atualiza os valores no mapa
+    //entra em cada href e retorna um objeto com as stations e locations
+    return network;
+    //pega o objeto retornado e salva ele no state ApiHref
   };
 
   useEffect(() => {
-    if (countryStations.length !== 0) {
-      const allStationsArray = allStations.concat(countryStations);
-      setAllstations(allStationsArray);
+    if (apiHref.length > 0) {
+      handleAllHrefs(apiHref);
     }
-  }, [countryStations]);
-  // quando altera o countryStations, concatena o valor aterior com o objeto passado (de cada href retorna um objeto)
+  }, [apiHref]);
+
+  const handleAllHrefs = (allHrefs) => {
+    let infoArray = [];
+    allHrefs.forEach((href) => {
+      if (href.stations.length > 0 && href.stations.length !== undefined)
+        infoArray.push({
+          id: href.name,
+          stationsLen: href.stations.length,
+        });
+    });
+    setInfo(infoArray);
+
+    let popUpArray = [];
+    allHrefs.forEach((hrefs) => {
+      if (hrefs.stations.length > 0 && hrefs.stations.length !== undefined) {
+        hrefs.stations.forEach((href) => {
+          popUpArray.push({
+            type: 'Feature',
+            properties: {
+              description: `
+                  ${href.name ? `<p>Free Bikes: ${href.name} </p>` : ''}
+                  ${
+                    href.empty_slots
+                      ? `<p>Free Bikes: ${href.empty_slots} </p>`
+                      : ''
+                  }
+                  ${
+                    href.free_bikes
+                      ? `<p>Free Bikes: ${href.free_bikes} </p>`
+                      : ''
+                  }
+                  ${
+                    href.longitude
+                      ? `<p>Free Bikes: ${href.longitude} </p>`
+                      : ''
+                  }
+                  ${href.latitude ? `<p>Free Bikes: ${href.latitude} </p>` : ''}
+                `,
+              icon: 'bicycle',
+            },
+            geometry: {
+              type: 'Point',
+              coordinates: [href.longitude, href.latitude],
+            },
+          });
+        });
+      }
+    });
+    //retorna um array com objetos contendo as informações de cada estação, um objeto no formato utilizado para ser exibido no mapa
+    setBikePoint(popUpArray);
+  };
 
   useEffect(() => {
-    const allNetworksArray = allNetworks.concat(countryNetworks);
-
-    setAllNetworks(allNetworksArray);
-  }, [countryNetworks]);
-  // quando altera o countryStations, concatena o valor aterior com o objeto passado (de cada href retorna um objeto) (usado no component info)
-
-  useEffect(() => {
-    setNetworksCountryLength(allNetworks.length);
-  }, [done]);
+    setInfoLength(info.length);
+    setDone(!done);
+  }, [bikePoint]);
   // quando acabar, conta o total de objetos no array para imprimir na tela
-
-  useEffect(() => {
-    getSelectValues();
-  }, []);
-  // ao montar o app ele pega os valores do select
 
   return (
     <StateContext.Provider
       value={{
-        inputValue,
-        setInputValue,
+        selectValue,
+        setSelectValue,
+        selectValues,
         initialLat,
         initialLong,
-        allStations,
+        info,
+        infoLength,
+        bikePoint,
         networksCountryLength,
-        allNetworks,
-        selectValues,
         done,
       }}
     >

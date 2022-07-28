@@ -4,7 +4,7 @@ import { useStateContext } from '../../contexts/contextProvider';
 import './header.css';
 
 const Header = () => {
-  const { setInputValue, selectValues } = useStateContext();
+  const { setSelectValue, selectValues } = useStateContext();
 
   return (
     <header className='header'>
@@ -15,7 +15,7 @@ const Header = () => {
         <p>Select country: </p>
         <select
           onChange={(e) => {
-            setInputValue(e.target.value);
+            setSelectValue(e.target.value);
           }}
         >
           {selectValues === [] ? (
