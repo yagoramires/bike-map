@@ -6,22 +6,22 @@ import { IoIosArrowUp, IoIosArrowDown } from 'react-icons/io';
 import './infos.css';
 
 const Infos = () => {
-  const { inputValue, networksCountryLength, allNetworks } = useStateContext();
+  const { selectValue, infoLength, info } = useStateContext();
 
   const [handleNetworks, setHandleNetworks] = useState(false)
   //quando clicar mostra/minimiza os networks na tela
 
   return (
     <div className='infos'>
-      <span>Country: {inputValue}</span>
+      <span>Country: {selectValue}</span>
       <div className='networks' onClick={() => setHandleNetworks(!handleNetworks)}>
-        <span>Networks: {networksCountryLength} </span>
+        <span>Networks: {infoLength} </span>
         {handleNetworks? <IoIosArrowUp /> :
         <IoIosArrowDown />}
       </div>
       <div className='stations'>
       {handleNetworks
-        ? allNetworks.map((station, i) => {
+        ? info.map((station, i) => {
             return (
                 <span key={i}>{`${station.id}: ${station.stationsLen}`}</span>
                 );
