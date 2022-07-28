@@ -9,11 +9,12 @@ const Header = () => {
   return (
     <header className='header'>
       <a href='/' className='header__title'>
-        City Bike
+        Bikes Map
       </a>
-      <div>
+      <div className='select__container'>
         <p>Select country: </p>
         <select
+          className='header__select'
           onChange={(e) => {
             setInputValue(e.target.value);
           }}

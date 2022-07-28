@@ -4,9 +4,9 @@
   right: 2rem;
   z-index: 10;
 
-  background-color: rgba(255,255,255,0.9);
-  border-radius:.5rem;
-  padding:.5rem;
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: .5rem;
+  padding: .5rem;
 }
 
 .infos span {
@@ -17,7 +17,7 @@
 
 .networks {
   display: flex;
-  align-items:center;
+  align-items: center;
   justify-content: space-between;
   cursor: pointer;
   gap: .5rem;
@@ -27,8 +27,17 @@
 .stations {
   max-height: 70vh;
   display: flex;
-  align-items:flex-start;
+  align-items: flex-start;
   flex-direction: column;
 
-  overflow-y: auto; 
+  overflow-y: auto;
+}
+
+@media (max-width: 768px) {
+  .infos {
+    top: 8rem;
+    right: 1rem;
+
+  }
+
 }
