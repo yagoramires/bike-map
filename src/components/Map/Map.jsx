@@ -7,8 +7,9 @@ import { useStateContext } from '../../contexts/contextProvider';
 
 export default function Map() {
   // VARIÁVEIS DO CONTEXT
-  const { inputValue, initialLat, initialLong, bikePoint, done } = useStateContext();
-    
+  const { selectValue, initialLat, initialLong, bikePoint, done } =
+    useStateContext();
+
   //MAPA
   const mapContainer = useRef(null);
   const map = useRef(null);
@@ -28,21 +29,21 @@ export default function Map() {
     map.current.addControl(new maplibregl.NavigationControl(), 'top-left');
 
     map.current.on('load', function () {
-      map.current.addSource(done? inputValue : 'places', {
-        'type': 'geojson',
-        'data': {
-          'type': 'FeatureCollection',
+      map.current.addSource(selectValue ? selectValue : 'places', {
+        type: 'geojson',
+        data: {
+          type: 'FeatureCollection',
 
-          'features' : bikePoint
+          features: bikePoint,
         },
       });
 
       // Add a layer showing the places.
       map.current.addLayer({
-        'id':'places',
-        'type': 'symbol',
-        'source':'places',
-        'layout': {
+        id: selectValue ? selectValue : 'places',
+        type: 'symbol',
+        source: selectValue ? selectValue : 'places',
+        layout: {
           'icon-image': '{icon}_15',
           'icon-overlap': 'always',
         },
@@ -50,32 +51,44 @@ export default function Map() {
 
       // When a click event occurs on a feature in the places layer, open a popup at the
       // location of the feature, with description HTML from its properties.
-      map.current.on('click','places', function (e) {
-        let coordinates = e.features[0].geometry.coordinates.slice();
-        let description = e.features[0].properties.description;
+      map.current.on(
+        'click',
+        selectValue ? selectValue : 'places',
+        function (e) {
+          let coordinates = e.features[0].geometry.coordinates.slice();
+          let description = e.features[0].properties.description;
 
-        // Ensure that if the map is zoomed out such that multiple
-        // copies of the feature are visible, the popup appears
-        // over the copy being pointed to.
-        while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
-          coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
-        }
+          // Ensure that if the map is zoomed out such that multiple
+          // copies of the feature are visible, the popup appears
+          // over the copy being pointed to.
+          while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+            coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+          }
 
-        new maplibregl.Popup()
-          .setLngLat(coordinates)
-          .setHTML(description)
-          .addTo(map.current);
-      });
+          new maplibregl.Popup()
+            .setLngLat(coordinates)
+            .setHTML(description)
+            .addTo(map.current);
+        },
+      );
 
       // Change the cursor to a pointer when the mouse is over the places layer.
-      map.current.on('mouseenter','places', function () {
-        map.current.getCanvas().style.cursor = 'pointer';
-      });
+      map.current.on(
+        'mouseenter',
+        selectValue ? selectValue : 'places',
+        function () {
+          map.current.getCanvas().style.cursor = 'pointer';
+        },
+      );
 
       // Change it back to a pointer when it leaves.
-      map.current.on('mouseleave','places', function () {
-        map.current.getCanvas().style.cursor = '';
-      });
+      map.current.on(
+        'mouseleave',
+        selectValue ? selectValue : 'places',
+        function () {
+          map.current.getCanvas().style.cursor = '';
+        },
+      );
     });
   }, [done]); //ATUALIZA QUANDO ALTERA AS STATIONS
 

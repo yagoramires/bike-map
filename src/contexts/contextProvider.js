@@ -12,7 +12,6 @@ export const ContextProvider = ({ children }) => {
   const [initialLong, setInitialLong] = useState(-43.365894);
   const [apiNetworks, setApiNetworks] = useState([]);
   const [networksCountryLength, setNetworksCountryLength] = useState(0);
-  const [apiHrefs, setApiHrefs] = useState();
   const [apiHref, setApiHref] = useState([]);
   const [networksByCountry, setNetworksByCountry] = useState([]);
   const [info, setInfo] = useState([]);
@@ -25,6 +24,7 @@ export const ContextProvider = ({ children }) => {
       data: { networks },
     } = await geoService.getNetworks();
     setApiNetworks(networks);
+    // console.log(networks);
   };
   //salva os dados da API dentro da variável apiNetworks
   useEffect(() => {
@@ -64,7 +64,7 @@ export const ContextProvider = ({ children }) => {
     //reseta todas as variáveis
 
     const getCountry = networks.filter(
-      (network) => network.location.country === selectValue
+      (network) => network.location.country === selectValue,
     );
     //filtra por país baseado no input
 
@@ -88,18 +88,18 @@ export const ContextProvider = ({ children }) => {
   }, [networksByCountry]);
   // chama a função ao alterar o networksByCountry (ao concluir a função getNetworksByCountry)
 
-  const handleNeworksByCountry = (data) => {
+  const handleNeworksByCountry = async (data) => {
     if (!data) return;
     setApiHref([]);
     //quando chamar um novo país irá resetar o state ApiHrefs
     const hrefs = data.map((network) => network.href);
     //pega os hrefs de cada network
 
-    let networksArray = [];
-    hrefs.map(async (href) => {
-      const res = await handleHrefs(href);
-      networksArray.push(res);
-    });
+    let promises = [];
+
+    hrefs.forEach((href) => promises.push(handleHrefs(href)));
+
+    const networksArray = await Promise.all(promises);
 
     setApiHref(networksArray);
   };
@@ -114,20 +114,12 @@ export const ContextProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    console.log(apiHref);
     if (apiHref.length > 0) {
       handleAllHrefs(apiHref);
     }
   }, [apiHref]);
 
-  // useEffect(() => {
-  //   const allHrefs = apiHrefs.concat(apiHref); //concatena todos ApiHrefs dentro de uma variavel ApiHrefs
-  //   setApiHrefs(allHrefs);
-  // }, [apiHref]); //a cada vez que alterar o apiHref ira concatenar
-
   const handleAllHrefs = (allHrefs) => {
-    console.log(allHrefs);
-
     let infoArray = [];
     allHrefs.forEach((href) => {
       if (href.stations.length > 0 && href.stations.length !== undefined)
@@ -142,9 +134,9 @@ export const ContextProvider = ({ children }) => {
     allHrefs.forEach((href) => {
       if (href.stations.length > 0 && href.stations.length !== undefined)
         popUpArray.push({
-          'type': 'Feature',
-          'properties': {
-            'description': `
+          type: 'Feature',
+          properties: {
+            description: `
               ${href.name ? `<p>Free Bikes: ${href.name} </p>` : ''}
               ${
                 href.empty_slots
@@ -155,23 +147,25 @@ export const ContextProvider = ({ children }) => {
               ${href.longitude ? `<p>Free Bikes: ${href.longitude} </p>` : ''}
               ${href.latitude ? `<p>Free Bikes: ${href.latitude} </p>` : ''}
             `,
-            'icon': 'bicycle',
+            icon: 'bicycle',
           },
-          'geometry': {
-            'type': 'Point',
-            'coordinates': [href.longitude, href.latitude],
+          geometry: {
+            type: 'Point',
+            coordinates: [href.longitude, href.latitude],
           },
         });
     });
     //retorna um array com objetos contendo as informações de cada estação, um objeto no formato utilizado para ser exibido no mapa
 
     setBikePoint(popUpArray);
-    console.log(popUpArray);
   };
 
   useEffect(() => {
+    console.log(bikePoint);
+    console.log(info);
     setInfoLength(info.length);
-  }, [done]);
+    setDone(!done);
+  }, [bikePoint]);
   // quando acabar, conta o total de objetos no array para imprimir na tela
 
   return (
@@ -186,7 +180,7 @@ export const ContextProvider = ({ children }) => {
         infoLength,
         bikePoint,
         networksCountryLength,
-        // done,
+        done,
       }}
     >
       {children}
