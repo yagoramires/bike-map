@@ -6,11 +6,15 @@ import geoService from '../api/geoService';
 const StateContext = createContext();
 
 export const ContextProvider = ({ children }) => {
-  const [selectValue, setSelectValue] = useState();
+  const [apiNetworks, setApiNetworks] = useState([]);
+  // Todos os networks recebidos da API
   const [selectValues, setSelectValues] = useState([]);
+  // Valor filtrado da API para o select
+  const [selectValue, setSelectValue] = useState();
+  // Valor inserido pelo usuário
+
   const [initialLat, setInitialLat] = useState(-23.000372);
   const [initialLong, setInitialLong] = useState(-43.365894);
-  const [apiNetworks, setApiNetworks] = useState([]);
   const [networksCountryLength, setNetworksCountryLength] = useState(0);
   const [apiHref, setApiHref] = useState([]);
   const [networksByCountry, setNetworksByCountry] = useState([]);
@@ -24,13 +28,10 @@ export const ContextProvider = ({ children }) => {
       data: { networks },
     } = await geoService.getNetworks();
     setApiNetworks(networks);
-    // console.log(networks);
-  };
-  //salva os dados da API dentro da variável apiNetworks
+  }; //salva os dados da API dentro da variável apiNetworks
   useEffect(() => {
     fetchApi();
-  }, []);
-  //chama a função ao iniciar
+  }, []); //chama a função somente ao iniciar
 
   const getSelectValues = (networks) => {
     if (!networks) return;
@@ -50,6 +51,7 @@ export const ContextProvider = ({ children }) => {
   };
 
   useEffect(() => {
+    if (!apiNetworks) return;
     if (apiNetworks.length > 0) {
       getSelectValues(apiNetworks);
     }
@@ -65,8 +67,7 @@ export const ContextProvider = ({ children }) => {
 
     const getCountry = networks.filter(
       (network) => network.location.country === selectValue,
-    );
-    //filtra por país baseado no input
+    ); //filtra por país baseado no input
 
     setInitialLat(getCountry[0].location.latitude);
     setInitialLong(getCountry[0].location.longitude);
@@ -80,8 +81,7 @@ export const ContextProvider = ({ children }) => {
     if (selectValue) {
       getNetworksByCountry(apiNetworks);
     }
-  }, [selectValue]);
-  // quando selecionar o país, irá chamar a função getNetworksByCountry
+  }, [selectValue]); // quando selecionar o país, irá chamar a função getNetworksByCountry
 
   useEffect(() => {
     handleNeworksByCountry(networksByCountry);
@@ -90,18 +90,14 @@ export const ContextProvider = ({ children }) => {
 
   const handleNeworksByCountry = async (data) => {
     if (!data) return;
-    setApiHref([]);
-    //quando chamar um novo país irá resetar o state ApiHrefs
-    const hrefs = data.map((network) => network.href);
-    //pega os hrefs de cada network
+    setApiHref([]); //quando chamar um novo país irá resetar o state ApiHrefs
+
+    const hrefs = data.map((network) => network.href); //pega os hrefs de cada network
 
     let promises = [];
-
-    hrefs.forEach((href) => promises.push(handleHrefs(href)));
-
-    const networksArray = await Promise.all(promises);
-
-    setApiHref(networksArray);
+    hrefs.forEach((href) => promises.push(handleHrefs(href))); // para cada href irá retornar um promise
+    const networksArray = await Promise.all(promises); // resolve todos os promises e coloca os objetos dentro de um array
+    setApiHref(networksArray); //passa todos os objetos para uma variável
   };
 
   const handleHrefs = async (href) => {
@@ -131,38 +127,46 @@ export const ContextProvider = ({ children }) => {
     setInfo(infoArray);
 
     let popUpArray = [];
-    allHrefs.forEach((href) => {
-      if (href.stations.length > 0 && href.stations.length !== undefined)
-        popUpArray.push({
-          type: 'Feature',
-          properties: {
-            description: `
-              ${href.name ? `<p>Free Bikes: ${href.name} </p>` : ''}
-              ${
-                href.empty_slots
-                  ? `<p>Free Bikes: ${href.empty_slots} </p>`
-                  : ''
-              }
-              ${href.free_bikes ? `<p>Free Bikes: ${href.free_bikes} </p>` : ''}
-              ${href.longitude ? `<p>Free Bikes: ${href.longitude} </p>` : ''}
-              ${href.latitude ? `<p>Free Bikes: ${href.latitude} </p>` : ''}
-            `,
-            icon: 'bicycle',
-          },
-          geometry: {
-            type: 'Point',
-            coordinates: [href.longitude, href.latitude],
-          },
+    allHrefs.forEach((hrefs) => {
+      if (hrefs.stations.length > 0 && hrefs.stations.length !== undefined) {
+        hrefs.stations.forEach((href) => {
+          popUpArray.push({
+            type: 'Feature',
+            properties: {
+              description: `
+                  ${href.name ? `<p>Free Bikes: ${href.name} </p>` : ''}
+                  ${
+                    href.empty_slots
+                      ? `<p>Free Bikes: ${href.empty_slots} </p>`
+                      : ''
+                  }
+                  ${
+                    href.free_bikes
+                      ? `<p>Free Bikes: ${href.free_bikes} </p>`
+                      : ''
+                  }
+                  ${
+                    href.longitude
+                      ? `<p>Free Bikes: ${href.longitude} </p>`
+                      : ''
+                  }
+                  ${href.latitude ? `<p>Free Bikes: ${href.latitude} </p>` : ''}
+                `,
+              icon: 'bicycle',
+            },
+            geometry: {
+              type: 'Point',
+              coordinates: [href.longitude, href.latitude],
+            },
+          });
         });
+      }
     });
     //retorna um array com objetos contendo as informações de cada estação, um objeto no formato utilizado para ser exibido no mapa
-
     setBikePoint(popUpArray);
   };
 
   useEffect(() => {
-    console.log(bikePoint);
-    console.log(info);
     setInfoLength(info.length);
     setDone(!done);
   }, [bikePoint]);
