@@ -20,7 +20,7 @@
 <img src="./src/assets/readme.gif" title="App demo" alt='App demo' />
 </p>
 
-### Testing this app
+<h1> Testing this app </h1>
 
 ```bash
     # Clone repository
@@ -33,3 +33,20 @@
     $ yarn start
     # The server will start on port:3000 - access http://localhost:3000/
 ```
+
+<h1> Author </h1>
+
+<div align="center" style="display: flex;align-items: center;justify-content: center; gap: 1rem;">
+    <img style="border-radius: 50%;" src="https://i.imgur.com/mDJjScy.jpg" width="150px;" />
+    <div style="display: flex;align-items: center;justify-content: center; gap: 1rem; flex-direction: column">
+        <a
+            href="https://www.linkedin.com/in/yagoramires/"
+            target="_blank"
+            ><img
+            src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white"
+            target="_blank"
+        />
+        <a href="https://github.com/yagoramires" ><b>Yago Ramires</b> 🚀</a>
+        </a>
+    </div>
+</div>
