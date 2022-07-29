@@ -22,6 +22,7 @@ export const ContextProvider = ({ children }) => {
   const [infoLength, setInfoLength] = useState(0);
   const [bikePoint, setBikePoint] = useState([]);
   const [done, setDone] = useState(false);
+  const [zoom, setZoom] = useState(5);
 
   const fetchApi = async () => {
     const {
@@ -122,6 +123,8 @@ export const ContextProvider = ({ children }) => {
         infoArray.push({
           id: href.name,
           stationsLen: href.stations.length,
+          latitude: href.location.latitude,
+          longitude: href.location.longitude,
         });
     });
     setInfo(infoArray);
@@ -134,10 +137,10 @@ export const ContextProvider = ({ children }) => {
             type: 'Feature',
             properties: {
               description: `
-                  ${href.name ? `<p>Free Bikes: ${href.name} </p>` : ''}
+                  ${href.name ? `<p>${href.name} </p>` : ''}
                   ${
                     href.empty_slots
-                      ? `<p>Free Bikes: ${href.empty_slots} </p>`
+                      ? `<p>Empty Slots: ${href.empty_slots} </p>`
                       : ''
                   }
                   ${
@@ -145,12 +148,8 @@ export const ContextProvider = ({ children }) => {
                       ? `<p>Free Bikes: ${href.free_bikes} </p>`
                       : ''
                   }
-                  ${
-                    href.longitude
-                      ? `<p>Free Bikes: ${href.longitude} </p>`
-                      : ''
-                  }
-                  ${href.latitude ? `<p>Free Bikes: ${href.latitude} </p>` : ''}
+                  ${href.longitude ? `<p>Long: ${href.longitude} </p>` : ''}
+                  ${href.latitude ? `<p>Lat: ${href.latitude} </p>` : ''}
                 `,
               icon: 'bicycle',
             },
@@ -168,6 +167,7 @@ export const ContextProvider = ({ children }) => {
 
   useEffect(() => {
     setInfoLength(info.length);
+    setZoom(3);
     setDone(!done);
   }, [bikePoint]);
   // quando acabar, conta o total de objetos no array para imprimir na tela
@@ -179,12 +179,17 @@ export const ContextProvider = ({ children }) => {
         setSelectValue,
         selectValues,
         initialLat,
+        setInitialLat,
         initialLong,
+        setInitialLong,
         info,
         infoLength,
         bikePoint,
         networksCountryLength,
         done,
+        setDone,
+        zoom,
+        setZoom,
       }}
     >
       {children}

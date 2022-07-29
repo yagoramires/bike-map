@@ -7,7 +7,7 @@ import { useStateContext } from '../../contexts/contextProvider';
 
 export default function Map() {
   // VARIÁVEIS DO CONTEXT
-  const { selectValue, initialLat, initialLong, bikePoint, done } =
+  const { selectValue, initialLat, initialLong, bikePoint, done, zoom } =
     useStateContext();
 
   //MAPA
@@ -16,7 +16,6 @@ export default function Map() {
   const long = initialLong;
   const lat = initialLat;
 
-  const [zoom] = useState(4);
   const [API_KEY] = useState('qNzilfZdZqz1XdoT2fWM');
 
   useEffect(() => {

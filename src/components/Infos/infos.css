@@ -26,11 +26,28 @@
 
 .stations {
   max-height: 70vh;
+  min-width: 150px;
   display: flex;
   align-items: flex-start;
   flex-direction: column;
 
   overflow-y: auto;
+}
+
+.station {
+  /* display: flex;
+  justify-content: space-between; */
+  width: 100%;
+  cursor: pointer;
+  transition: all .5s;
+}
+
+.station span:nth-of-type(1) {
+  font-weight: 600;
+}
+
+.station:hover {
+  color: gray;
 }
 
 @media (max-width: 768px) {
