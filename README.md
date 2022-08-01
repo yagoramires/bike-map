@@ -1,5 +1,9 @@
 <h1 > Bikes Map </h1>
 
+<p align="center">
+<img src="./src/assets/readme.gif" title="App demo" alt='App demo' />
+</p>
+
 <p>In this code challenge i built an Web App which consults an API to retrieve a geolocated data to expose on a Map.</p>
 
 <h2> Requirements: </h2>
@@ -15,10 +19,6 @@
     <li> Allow the user to drilldown, by clicking on markers</li>
     <li> Allow the user to go back to the previous layer</li>
 </ul>
-
-<p align="center">
-<img src="./src/assets/readme.gif" title="App demo" alt='App demo' />
-</p>
 
 <h1> Testing this app </h1>
 
