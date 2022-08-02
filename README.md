@@ -38,7 +38,7 @@
 
 <div align="center" >
     <p>
-        <img style="border-radius: 50%;" src="https://i.imgur.com/mDJjScy.jpg" width="150px;" />
+        <img style="border-radius: 50%;" src="https://i.imgur.com/maDFVAL.png" width="150px;" />
     </p>
     <p>
         <a
